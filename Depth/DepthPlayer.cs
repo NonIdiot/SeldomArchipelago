@@ -39,7 +39,7 @@ namespace SeldomDespArchipelago.Depth
         }
         public override bool PreKill(double damage, int hitDirection, bool pvp, ref bool playSound, ref bool genDust, ref PlayerDeathReason damageSource)
         {
-            if (damageSource.SourceNPCIndex > -1 && Main.npc[damageSource.SourceNPCIndex].ModNPC is DepthGuardian)
+            if (Main.npc.IndexInRange(damageSource.SourceNPCIndex) && Main.npc[damageSource.SourceNPCIndex].ModNPC is DepthGuardian)
             {
                 damageSource.CustomReason = NetworkText.FromLiteral($"{Player.name} went in too deep.");
             }
