@@ -1163,8 +1163,9 @@ namespace SeldomDespArchipelago
             };
 
             if (name == "Begone, Evil!" && Main.gameMenu) return;  // No need to overthink this one, right?
-            if (name != null) ModContent.GetInstance<ArchipelagoSystem>().QueueLocationClient(name);
-            ModContent.GetInstance<ArchipelagoSystem>().Achieved(achievement.Name);
+            var system = ModContent.GetInstance<ArchipelagoSystem>();
+            if (name != null && system.ActiveSlot() is not null) system.QueueLocationClient(name);
+            system.Achieved(achievement.Name);
         }
 
         delegate void OnKill(ModNPC self);
