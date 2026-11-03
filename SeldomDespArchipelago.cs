@@ -4,6 +4,7 @@ using CalamityMod.Projectiles.Boss;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using SeldomDespArchipelago.NPCs;
@@ -27,6 +28,19 @@ using Terraria.GameContent.Events;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
+using Newtonsoft.Json.Linq;
+using System.Threading.Tasks;
+using Terraria.Audio;
+using Terraria.GameContent;
+using Terraria.GameContent.Bestiary;
+using Terraria.GameContent.ItemDropRules;
+using Terraria.GameContent.Personalities;
+using Terraria.GameContent.UI;
+using Terraria.ModLoader.IO;
+using Terraria.Utilities;
+using ReLogic.Content;
+using System.Collections.Immutable;
+using System.IO;
 
 // Note: When pulling commits from here to main, this namespace needs to be refactored.
 namespace SeldomDespArchipelago
@@ -72,12 +86,26 @@ namespace SeldomDespArchipelago
             return mod;
         }
 
+        public static List<Asset<Texture2D>> overlayTextures = new List<Asset<Texture2D>>();
+        public static Asset<Texture2D> overlayTexture1;
+        public static List<int[]> textureSets;
         public override void Load()
         {
             var archipelagoSystem = ModContent.GetInstance<ArchipelagoSystem>();
             if (ModLoader.HasMod("SeldomArchipelago") || ModLoader.HasMod("SeldomArchipelagoExtended") || ModLoader.HasMod("SpikersArchipelago"))
             {
                 throw new Exception("Multiple Archipelago mods detected! Make sure only one is enabled at a time.");
+            }
+
+            if (ModContent.RequestIfExists<Texture2D>("SeldomDespArchipelago/UI/CollectionButton", out Asset<Texture2D> myAsset))
+            {
+                //throw new Exception("A texture is loading.");
+                SeldomArchipelago.overlayTextures.Add(myAsset);
+                //overlayTexture1 = myAsset;
+            }
+            else
+            {
+                throw new Exception("A texture failed to load.");
             }
 
             // Begin cursed IL editing
