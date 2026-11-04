@@ -1037,6 +1037,26 @@ namespace SeldomDespArchipelago.Systems
                 if (ModLoader.HasMod("CalamityMod")) CalamitySystem.CalamityStartHardmode();
             }));
         }
+
+        public int gameTimer = 0;
+        public bool specialColors = true;
+        public bool spinning = true;
+        public bool sizeChange = true;
+        public float overlayOpacity = 0.75f;
+        public bool offResearch = false;
+        public override void UpdateUI(GameTime gameTime)
+        {
+            specialColors = ModContent.GetInstance<Config.Config>().researchSpecialColors;
+            spinning = ModContent.GetInstance<Config.Config>().researchSpinning;
+            sizeChange = ModContent.GetInstance<Config.Config>().researchSizeChange;
+            overlayOpacity = ModContent.GetInstance<Config.Config>().researchOverlayOpacity/100f;
+            offResearch = ModContent.GetInstance<Config.Config>().forceOffResearch;
+            gameTimer += 1;
+            if (gameTimer > 185)
+            {
+                gameTimer = 0;
+            }
+        }
     }
 
 }

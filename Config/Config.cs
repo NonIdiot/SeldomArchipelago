@@ -26,6 +26,7 @@ namespace SeldomDespArchipelago.Config
         [DefaultValue(38281)]
         public int port;
 
+
         [Header("Advanced")]
 
         [Label("Server Address")]
@@ -45,11 +46,45 @@ namespace SeldomDespArchipelago.Config
         [Dropdown]
         public ChatSetting chatSettings;
 
+
+        [Header("Researching")]
+
+        [Label("Display Special Colors")]
+        [DefaultValue(true)]
+        public bool researchSpecialColors;
+
+        [Label("Display Spinning")]
+        [DefaultValue(true)]
+        public bool researchSpinning;
+
+        [Label("Display Size Change")]
+        [DefaultValue(true)]
+        public bool researchSizeChange;
+
+        [Label("Overlay Opacity")]
+        [Range(0, 100)]
+        [DefaultValue(75)]
+        public int researchOverlayOpacity;
+
+
         [Header("Miscellaneous")]
 
         [Label("Receive Flag As Item")]
         [DefaultListValue("Hardmode")]
         public List<string> manualFlags = [];
+<<<<<<< Updated upstream
+=======
+
+
+        [Header("Debug")]
+
+        [Label("Force NPC Randomization Off")]
+        [DefaultValue(false)]
+        public bool forceOffNPC;
+        [Label("Force Research-Blocking Off")]
+        [DefaultValue(false)]
+        public bool forceOffResearch;
+>>>>>>> Stashed changes
 
         [OnDeserialized]
         internal void CheckItems(StreamingContext _)

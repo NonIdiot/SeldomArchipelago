@@ -9,6 +9,7 @@ Mods: {
 
 				Headers: {
 					Miscellaneous: Miscellaneous Header
+					Researching: Researching Header
 					Chat: Chat Header
 					Advanced: Advanced Header
 					Common: Common Header
@@ -23,6 +24,26 @@ Mods: {
 				colorText: {
 					Tooltip: ""
 					Label: Color AP Text
+				}
+
+				researchOverlayOpacity: {
+					Tooltip: ""
+					Label: Overlay Opacity
+				}
+
+				researchSizeChange: {
+					Tooltip: ""
+					Label: Display Size Change
+				}
+
+				researchSpinning: {
+					Tooltip: ""
+					Label: Display Spinning
+				}
+
+				researchSpecialColors: {
+					Label: Display Special Colors
+					Tooltip: If enabled, the research overlay shows different colors hinting at what AP item is behind researching the in-game item.
 				}
 
 				password: {
@@ -48,6 +69,11 @@ Mods: {
 				forceOffNPC: {
 					Label: Force NPC Ghosting Off
 					Tooltip: Force this mod to use vanilla behavior for NPCs. If your slot has NPC Randomization enabled, leave this setting off.
+				}
+
+				forceOffResearch: {
+					Label: Force Research-Blocking Off
+					Tooltip: Force this mod to use vanilla behavior for allowing item research. Only use if something breaks.
 				}
 
 				DisplayName: Config

@@ -81,6 +81,23 @@ namespace SeldomDespArchipelago
                 throw new Exception("Multiple Archipelago mods detected! Make sure only one is enabled at a time.");
             }
 
+<<<<<<< Updated upstream
+=======
+            for (int a=0; a<6; a++)
+            {
+                if (ModContent.RequestIfExists<Texture2D>("SeldomDespArchipelago/ItemOverlay/OverlayTexture"+a, out Asset<Texture2D> myAsset))
+                {
+                    //throw new Exception("A texture is loading.");
+                    SeldomArchipelago.overlayTextures.Add(myAsset);
+                    //overlayTexture1 = myAsset;
+                }
+                else
+                {
+                    throw new Exception("A texture failed to load.");
+                }
+            }
+
+>>>>>>> Stashed changes
             // Begin cursed IL editing
             #region Vanilla IL Edits
             // Allow Tin Shortsword + Helmet to transform Copper Slime 
