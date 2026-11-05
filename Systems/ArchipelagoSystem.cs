@@ -684,6 +684,7 @@ namespace SeldomDespArchipelago.Systems
                         bool handled = false;
                         if (ModLoader.HasMod("CalamityMod")) handled = CalamitySystem.GiveItem(item);
                         if (!handled && ModLoader.HasMod("FargowiltasSouls")) handled = FargoSystem.GiveItem(item);
+                        if (!handled && ItemOverlay.ItemOverlay.allResearchsanity.Contains(item)) handled = true;
                         if (!handled) Chat($"Received unknown item: {item}");
                         break;
                     }
@@ -1039,6 +1040,14 @@ namespace SeldomDespArchipelago.Systems
         }
 
         public int gameTimer = 0;
+        public Dictionary<string,int[]> idToColors = new Dictionary<string,int[]>();
+        //{
+        //    {"Fledgling Wings", [1,0,0,0,0,0]},
+        //    {"Daybloom Seeds", [1,0,3,0,3,0]},
+        //    {"Wooden Sword", [1,2,3,0,3,2]}
+        //};
+        public int researchLockedBehindItems = -1;
+        // config options (so that each item isn't referencing the config every frame)
         public bool specialColors = true;
         public bool spinning = true;
         public bool sizeChange = true;
@@ -1058,5 +1067,4 @@ namespace SeldomDespArchipelago.Systems
             }
         }
     }
-
 }

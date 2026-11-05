@@ -1,4 +1,5 @@
 using Archipelago.MultiClient.Net;
+using Archipelago.MultiClient.Net.Enums;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
@@ -29,6 +30,8 @@ namespace SeldomDespArchipelago.Systems.Data
         // If this is the case, we can transform the ghost/bound npc into the item npc as soon as it is activated, for both expediency and cuteness.
         public ImmutableDictionary<int, int> ItemsByNPC {get; init; }
         public bool DepthRando {get; init; }
+        public int Researchsanity {get; init; }
+        public int ResearchLockedBehindItems {get; init; }
         public bool Calamity {get; init; }
         public bool Fargo {get; init; }
         public SlotData() {}
@@ -42,8 +45,12 @@ namespace SeldomDespArchipelago.Systems.Data
             Deathlink = (bool)login.SlotData["deathlink"];
             NpcRando = isEnabled("npc_rando");
             DepthRando = isEnabled("depth_rando");
+            Researchsanity = Convert.ToInt32(login.SlotData["researchsanity"]);
+            ResearchLockedBehindItems = Convert.ToInt32(login.SlotData["research_locked_behind_items"]);
             Calamity = isEnabled("calamity");
             Fargo = isEnabled("fargo");
+            
+            #region  NPCRando
             RandomizedNPCs = null;
             var itemsByNPC = new Dictionary<int, int>();
             if (NpcRando)
@@ -80,6 +87,81 @@ namespace SeldomDespArchipelago.Systems.Data
                 }
             }
             ItemsByNPC = NpcRando ? itemsByNPC.ToImmutableDictionary() : null;
+            #endregion
+
+            #region  Researchsanity
+            var archipelagoSystem = ModContent.GetInstance<ArchipelagoSystem>();
+            archipelagoSystem.researchLockedBehindItems = ResearchLockedBehindItems;
+            if (Researchsanity > 0)
+            {
+                var missingLocations = session.Locations.AllMissingLocations;
+                List<long> idList = new List<long>();
+                foreach (long loc in missingLocations)
+                {
+                    string awesomeName = session.Locations.GetLocationNameFromId(loc, SessionState.APWorldName);
+                    if (awesomeName != null && awesomeName.StartsWith("Researchsanity - "))
+                    {
+                        idList.Add(loc);
+                    }
+                }
+                var task = session.Locations.ScoutLocationsAsync(HintCreationPolicy.None,idList.ToArray());
+                if (task.Wait(1000))
+                {
+                    var locByID = task.Result;
+                    foreach (long key in locByID.Keys)
+                    {
+                        var itemInfo = locByID[key];
+                        int[] myArray = [0,1,2,3,4,5];
+                        if ((npcNameToID.Keys).Contains(itemInfo.ItemName))
+                        {
+                            myArray = [4,2,4,3,4,6];
+                            //int npcType = idToPreset[key];
+                            //itemsByNPC[npcType] = npcNameToID[itemInfo.ItemName];
+                        }
+                        else if (itemInfo.Player.Slot == Slot && itemInfo.Flags == ItemFlags.Advancement)
+                        {
+                            myArray = [4,4,4,5,6,5];
+                        }
+                        string awesomeName = session.Locations.GetLocationNameFromId(key, SessionState.APWorldName);
+                        awesomeName = awesomeName.Replace("Researchsanity - ","");
+                        if (awesomeName.Contains("["))
+                        {
+                            awesomeName = awesomeName.Remove(awesomeName.IndexOf("[")-1);
+                        }
+                        archipelagoSystem.idToColors[awesomeName] = myArray;
+                    }
+
+                    // Change here if the way Researchsanity AP-items are handled is changed.
+                    int theLength = locByID.Keys.ToArray().Length;
+                    if (theLength < 18)
+                    {
+                        if (theLength < 4)
+                        {
+                            if (theLength < 1)
+                            {
+                                // If no Researchsanity locations available, this is 0.
+                                ResearchLockedBehindItems = 0;
+                            }
+                            else
+                            {
+                                // If 1-3 locations available, this is 1 or lower.
+                                ResearchLockedBehindItems = Math.Min(ResearchLockedBehindItems,1);
+                            }
+                        }
+                        else
+                        {
+                            // If 4-17 locations available, this is 2 or lower.
+                            ResearchLockedBehindItems = Math.Min(ResearchLockedBehindItems,2);
+                        }
+                    }
+                }
+                else  // TODO: Have better backup plan here as well
+                {
+                    ModContent.GetInstance<ArchipelagoSystem>().Mod.Logger.Info("Failed to properly initialize idToColors");
+                }
+            }
+            ModContent.GetInstance<ArchipelagoSystem>().Mod.Logger.Info("Researchsanity: "+Researchsanity+" Locked: "+ResearchLockedBehindItems);
+            #endregion
         }
         public TagCompound SerializeData()
         {
@@ -92,6 +174,8 @@ namespace SeldomDespArchipelago.Systems.Data
                 [nameof(Deathlink)] = Deathlink,
                 [nameof(NpcRando)] = NpcRando,
                 [nameof(DepthRando)] = DepthRando,
+                [nameof(Researchsanity)] = Researchsanity,
+                [nameof(ResearchLockedBehindItems)] = ResearchLockedBehindItems,
                 [nameof(Calamity)] = Calamity,
                 [nameof(Fargo)] = Fargo,
             };
@@ -120,6 +204,8 @@ namespace SeldomDespArchipelago.Systems.Data
                 RandomizedNPCs = npcRando ? tag.GetList<int>(nameof(RandomizedNPCs)).ToImmutableHashSet() : null,
                 ItemsByNPC = npcRando ? npcs.Zip(items, (k, v) => new { Key = k, Value = v}).ToImmutableDictionary(x => x.Key, x => x.Value) : null,
                 DepthRando = tag.GetBool(nameof(DepthRando)),
+                Researchsanity = tag.GetInt(nameof(Researchsanity)),
+                ResearchLockedBehindItems = tag.GetInt(nameof(ResearchLockedBehindItems)),
                 Calamity = tag.GetBool(nameof(Calamity)),
                 Fargo = tag.GetBool(nameof(Fargo)),
             };
@@ -136,6 +222,8 @@ namespace SeldomDespArchipelago.Systems.Data
             writer.Write(string.Join(';', ItemsByNPC.Keys));
             writer.Write(string.Join(';', ItemsByNPC.Values));
             writer.Write(DepthRando);
+            writer.Write(Researchsanity);
+            writer.Write(ResearchLockedBehindItems);
             writer.Write(Calamity);
             writer.Write(Fargo);
         }
@@ -153,6 +241,8 @@ namespace SeldomDespArchipelago.Systems.Data
                 var itemsByNPCKeys = from i in reader.ReadString().Split(';') select int.Parse(i);
                 var itemsByNPCValues = from i in reader.ReadString().Split(';') select int.Parse(i);
                 bool depthRando = reader.ReadBoolean();
+                int researchsanity = reader.ReadInt32();
+                int research_locked_behind_items = reader.ReadInt32();
                 bool calamity = reader.ReadBoolean();
                 bool fargo = reader.ReadBoolean();
                 return new SlotData
@@ -166,6 +256,8 @@ namespace SeldomDespArchipelago.Systems.Data
                 RandomizedNPCs = randomizedNPCs,
                 ItemsByNPC = itemsByNPCKeys.Zip(itemsByNPCValues, (k, v) => KeyValuePair.Create(k, v)).ToImmutableDictionary(),
                 DepthRando = depthRando,
+                Researchsanity = researchsanity,
+                ResearchLockedBehindItems = research_locked_behind_items,
                 Calamity = calamity,
                 Fargo = fargo,
             };

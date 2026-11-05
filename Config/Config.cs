@@ -72,8 +72,6 @@ namespace SeldomDespArchipelago.Config
         [Label("Receive Flag As Item")]
         [DefaultListValue("Hardmode")]
         public List<string> manualFlags = [];
-<<<<<<< Updated upstream
-=======
 
 
         [Header("Debug")]
@@ -84,7 +82,7 @@ namespace SeldomDespArchipelago.Config
         [Label("Force Research-Blocking Off")]
         [DefaultValue(false)]
         public bool forceOffResearch;
->>>>>>> Stashed changes
+
 
         [OnDeserialized]
         internal void CheckItems(StreamingContext _)

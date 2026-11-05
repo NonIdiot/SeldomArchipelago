@@ -4,6 +4,7 @@ using CalamityMod.Projectiles.Boss;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using SeldomDespArchipelago.NPCs;
@@ -18,16 +19,20 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
+using ReLogic.Content;
 using Terraria;
+using Terraria.Audio;
 using Terraria.Achievements;
 using Terraria.Chat;
 using Terraria.DataStructures;
 using Terraria.Enums;
 using Terraria.GameContent.Achievements;
 using Terraria.GameContent.Events;
+using Terraria.GameContent.UI.Elements;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.ModLoader;
+using Terraria.UI;
 
 // Note: When pulling commits from here to main, this namespace needs to be refactored.
 namespace SeldomDespArchipelago
@@ -73,6 +78,7 @@ namespace SeldomDespArchipelago
             return mod;
         }
 
+        public static List<Asset<Texture2D>> overlayTextures = new List<Asset<Texture2D>>();
         public override void Load()
         {
             var archipelagoSystem = ModContent.GetInstance<ArchipelagoSystem>();
@@ -81,23 +87,18 @@ namespace SeldomDespArchipelago
                 throw new Exception("Multiple Archipelago mods detected! Make sure only one is enabled at a time.");
             }
 
-<<<<<<< Updated upstream
-=======
-            for (int a=0; a<6; a++)
+            for (int a=0; a<=6; a++)
             {
                 if (ModContent.RequestIfExists<Texture2D>("SeldomDespArchipelago/ItemOverlay/OverlayTexture"+a, out Asset<Texture2D> myAsset))
                 {
-                    //throw new Exception("A texture is loading.");
                     SeldomArchipelago.overlayTextures.Add(myAsset);
-                    //overlayTexture1 = myAsset;
                 }
                 else
                 {
-                    throw new Exception("A texture failed to load.");
+                    throw new Exception("A texture ("+a+") failed to load.");
                 }
             }
 
->>>>>>> Stashed changes
             // Begin cursed IL editing
             #region Vanilla IL Edits
             // Allow Tin Shortsword + Helmet to transform Copper Slime 
