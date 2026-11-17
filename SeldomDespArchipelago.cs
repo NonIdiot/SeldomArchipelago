@@ -78,7 +78,8 @@ namespace SeldomDespArchipelago
             return mod;
         }
 
-        public static List<Asset<Texture2D>> overlayTextures = new List<Asset<Texture2D>>();
+        public static Dict<string,Asset<Texture2D>> overlayTextures = new Dict<string,Asset<Texture2D>>();
+        public static constant string[] listTextures = ["Red","Lime","Purple","Orange","Blue","Yellow","Gray","Trans","Brown","White","Sky"]
         public override void Load()
         {
             var archipelagoSystem = ModContent.GetInstance<ArchipelagoSystem>();
@@ -87,15 +88,15 @@ namespace SeldomDespArchipelago
                 throw new Exception("Multiple Archipelago mods detected! Make sure only one is enabled at a time.");
             }
 
-            for (int a=0; a<=6; a++)
+            for (int a=0; a<listTextures.Length; a++)
             {
-                if (ModContent.RequestIfExists<Texture2D>("SeldomDespArchipelago/ItemOverlay/OverlayTexture"+a, out Asset<Texture2D> myAsset))
+                if (ModContent.RequestIfExists<Texture2D>("SeldomDespArchipelago/ItemOverlay/OverlayTexture"+listTextures[a], out Asset<Texture2D> myAsset))
                 {
-                    SeldomArchipelago.overlayTextures.Add(myAsset);
+                    SeldomArchipelago.overlayTextures[listTextures[a]] = (myAsset);
                 }
                 else
                 {
-                    throw new Exception("A texture ("+a+") failed to load.");
+                    throw new Exception("A texture ("+listTextures[a]+") failed to load.");
                 }
             }
 

@@ -26,44 +26,52 @@ namespace SeldomDespArchipelago.ItemOverlay
         public void drawMyImages(Item item, SpriteBatch spriteBatch, Vector2 position, float scale)
         {
             var archipelagoSystem = ModContent.GetInstance<ArchipelagoSystem>();
-            string itemName = item.Name;//Lang.GetItemNameValue(item.type);
-            float myAngle = archipelagoSystem.gameTimer/30f;//Main.fpsTimer.ElapsedMilliseconds/333.33f;//Main.GameUpdateCount/20f;
-            float usedOffset = 0f;
-            float outwardsCount = (float)(12+2*MathF.Cos((float)myAngle*2f));
-            float alpha = 0.5f;
-            int[] whichTextureToUse = [0,1,2,3,4,5]; // This is set to the correct textures via the generated-on-world-load Dict.
-            if (archipelagoSystem.idToColors.ContainsKey(itemName))
+            float alpha = archipelagoSystem.overlayOpacity;//0.5f
+            if (alpha > 0f)
             {
-                if (canTrueResearchItem(item))
+                string itemName = returnResearchsanityString(item.Name,item.ModItem?.Mod.Name);//Lang.GetItemNameValue(item.type);
+                float myAngle = archipelagoSystem.gameTimer/30f;//Main.fpsTimer.ElapsedMilliseconds/333.33f;//Main.GameUpdateCount/20f;
+                float usedOffset = 0f;
+                float outwardsCount = (float)(12+2*MathF.Cos((float)myAngle*2f));
+                string[] whichTextureToUse = []; // This is set to the correct textures via the generated-on-world-load Dict.
+                if (archipelagoSystem.idToColors.ContainsKey(itemName))
                 {
-                    whichTextureToUse = archipelagoSystem.idToColors[itemName];
-                }
-                else
-                {
-                    whichTextureToUse = [6,6,6,6,6,6];
-                    myAngle = 0;
-                    outwardsCount = 12;
-                }
+                    if (canTrueResearchItem(item))
+                    {
+                        whichTextureToUse = archipelagoSystem.idToColors[itemName];
+                        if (!archipelagoSystem.spinning) myAngle = 0;
+                        if (!archipelagoSystem.sizeChange) outwardsCount = 12;
+                    }
+                    else
+                    {
+                        whichTextureToUse = ["Gray","Gray","Gray","Gray","Gray","Gray"];//archipelagoSystem.Presets["Grayed"];
+                        myAngle = 0;
+                        outwardsCount = 12;
+                    }
 
-                for (int a=0; a<6; a++)
-                {
-                    Texture2D usedTexture = SeldomArchipelago.overlayTextures[whichTextureToUse[a]].Value;
-                    spriteBatch.Draw
-                    (
-                        usedTexture,
-                        new Vector2
-                        (
-                            position.X - usedTexture.Width * usedOffset + outwardsCount*(float)Math.Sin(myAngle+(float)(60f*a*(Math.PI/180f))),//.25
-                            position.Y - usedTexture.Height * usedOffset + outwardsCount*(float)Math.Cos(myAngle+(float)(60f*a*(Math.PI/180f)))//.25 + item.height 
-                        ),
-                        new Rectangle(0, 0, usedTexture.Width, usedTexture.Height),
-                        new Color(alpha,alpha,alpha,alpha), // all four are set, since if only the alpha is set, it gets REALLY bright.
-                        0,
-                        usedTexture.Size() * 0.5f,
-                        scale,
-                        SpriteEffects.None,
-                        0f
-                    );
+                    for (int a=0; a<6; a++)
+                    {
+                        if (whichTextureToUse[a] != "Blank" && SeldomArchipelago.overlayTextures.Keys.Contains(whichTextureToUse[a]))
+                        {
+                            Texture2D usedTexture = SeldomArchipelago.overlayTextures[SeldomArchipelago.overlayTextures.IndexOf(whichTextureToUse[a])].Value;
+                            spriteBatch.Draw
+                            (
+                                usedTexture,
+                                new Vector2
+                                (
+                                    position.X - usedTexture.Width * usedOffset + outwardsCount*(float)Math.Sin(myAngle+(float)(60f*a*(Math.PI/180f))),//.25
+                                    position.Y - usedTexture.Height * usedOffset + outwardsCount*(float)Math.Cos(myAngle+(float)(60f*a*(Math.PI/180f)))//.25 + item.height 
+                                ),
+                                new Rectangle(0, 0, usedTexture.Width, usedTexture.Height),
+                                new Color(alpha,alpha,alpha,alpha), // all four are set, since if only the alpha is set, it gets REALLY bright.
+                                0,
+                                usedTexture.Size() * 0.5f,
+                                1f,//scale
+                                SpriteEffects.None,
+                                0f
+                            );
+                        }
+                    }
                 }
             }
         }
@@ -109,6 +117,10 @@ namespace SeldomDespArchipelago.ItemOverlay
             
             //if (Terraria.GameContent.Creative.CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type] == 25)
             //if (item.prefix == 0 || item.prefix == -1)
+            if (!Terraria.GameContent.Creative.CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId.Keys.Contains(item.type))
+            {
+                return "false";
+            }
             int sacrificeCount = Terraria.GameContent.Creative.CreativeItemSacrificesCatalog.Instance.SacrificeCountNeededByItemId[item.type];
             if (resLock == 0 || archipelagoSystem.offResearch)
             {
@@ -183,6 +195,24 @@ namespace SeldomDespArchipelago.ItemOverlay
             }
         }
 
+        public static string returnResearchsanityString(string itemName, string modName)
+        {
+            string awesomeName = "Researchsanity - "+itemName;
+            if (modName == "CalamityMod")
+            {
+                awesomeName = awesomeName+" [Calamity Mod]";
+            }
+            else if (modName == "Fargowiltas")
+            {
+                awesomeName = awesomeName+" [Fargo's Mutant Mod]";
+            }
+            else if (modName == "FargowiltasSouls")
+            {
+                awesomeName = awesomeName+" [Fargo's Souls Mod]";
+            }
+            return awesomeName;
+        }
+
         public override void PostDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
         {
             drawMyImages(item, spriteBatch, position, scale);
@@ -190,6 +220,7 @@ namespace SeldomDespArchipelago.ItemOverlay
 
         public override void PostDrawInWorld(Item item, SpriteBatch spriteBatch, Color lightColor, Color alphaColor, float rotation, float scale, int whoAmI)
         {
+            // remember to add a config to override this
             drawMyImages(item, spriteBatch, item.position - Main.screenPosition + new Vector2(item.getRect().Width/2f, item.getRect().Height/4f+0f), scale);
         }
 
@@ -201,23 +232,10 @@ namespace SeldomDespArchipelago.ItemOverlay
         public override void OnResearched(Item item, bool fullyResearched)
         {
             var archipelagoSystem = ModContent.GetInstance<ArchipelagoSystem>();
-            string itemName = item.Name;
+            string itemName = returnResearchsanityString(item.Name,item.ModItem?.Mod.Name);
             if (fullyResearched && canTrueResearchItem(item) && archipelagoSystem.idToColors.ContainsKey(itemName))
             {
-                string awesomeName = "Researchsanity - "+itemName;
-                if (item.ModItem?.Mod.Name == "CalamityMod")
-                {
-                    awesomeName = awesomeName+" [Calamity Mod]";
-                }
-                if (item.ModItem?.Mod.Name == "Fargowiltas")
-                {
-                    awesomeName = awesomeName+" [Fargo's Mutant Mod]";
-                }
-                if (item.ModItem?.Mod.Name == "FargowiltasSouls")
-                {
-                    awesomeName = awesomeName+" [Fargo's Souls Mod]";
-                }
-                archipelagoSystem.QueueLocation(awesomeName);
+                archipelagoSystem.QueueLocation(itemName);
                 archipelagoSystem.idToColors.Remove(itemName);
             }
         }
@@ -225,7 +243,7 @@ namespace SeldomDespArchipelago.ItemOverlay
         public override void ModifyTooltips(Item item, List<TooltipLine> tooltips)
         {
             var archipelagoSystem = ModContent.GetInstance<ArchipelagoSystem>();
-            string itemName = item.Name;
+            string itemName = returnResearchsanityString(item.Name,item.ModItem?.Mod.Name);
             if (archipelagoSystem.idToColors.ContainsKey(itemName))
             {
                 TooltipLine myLine = new TooltipLine(ModLoader.GetMod("SeldomDespArchipelago"),"ResearchsanityLocation","Fully researching this item sends an AP item to the multiworld!");
