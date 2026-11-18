@@ -92,22 +92,34 @@ namespace SeldomDespArchipelago.Systems.Data
             #region  Researchsanity
             var archipelagoSystem = ModContent.GetInstance<ArchipelagoSystem>();
             // Researchsanity Dicts for finding the preset to use.
-            Dict<string,string[]> itemExactToPreset = { // Occurs first, if the name is exact. If true, it also needs to be a Progression or Trap item.
+            // These are simple, and there are exceptions that occur before and after these run.
+
+            // Occurs first, if the item name is exact. If true, it also needs to be a Progression or Trap item.
+            Dictionary<string,string[]> itemExactToPreset = new Dictionary<string,string[]> {
                 {"grub", ["Grub","false"]},
                 {"not a grub", ["Grub","false"]}
             };
-            Dict<string,string> itemContainsToPreset = { // Occurs second, if the name contains it. If true, it also needs to be a Progression or Trap item.
+            // Occurs second, if the item name contains it. If true, it also needs to be a Progression or Trap item.
+            Dictionary<string,string[]> itemContainsToPreset = new Dictionary<string,string[]> {
                 {"strawberry",["Strawberry","false"]},
                 {"sword",["Sword","false"]},
                 {"knife",["Sword","false"]},
                 {"blade",["Sword","false"]},
-                {"reward - ",["Reward","false"]},
-                {"puzzle",["Puzzle","true"]}
+                {"reward: ",["Reward","false"]},
+                {"puzzle",["Puzzle","true"]},
+                {"raspberry",["Raspberry","false"]},
+                {"rassberry",["Raspberry","false"]},
+                {"razzberry",["Raspberry","false"]}
             };
-            Dict<string,string> worldContainsToPreset = {
-                {"terraria","Terraria"},
-                {"pokemon","Pokemon"},
-                {"pokémon","Pokemon"}
+            // Occurs third, if the world name is exact. If true, it also needs to be a Progression or Trap item.
+            Dictionary<string,string[]> worldExactToPreset = new Dictionary<string,string[]> {
+                {"paint",["Windows","false"]}
+            };
+            // Occurs fourth, if the world name contains it. If true, it also needs to be a Progression or Trap item.
+            Dictionary<string,string[]> worldContainsToPreset = new Dictionary<string,string[]> {
+                {"terraria",["Terraria","true"]},
+                {"pokemon",["Pokemon","true"]},
+                {"poké",["Pokemon","true"]}
             };
             if (Researchsanity > 0)
             {
@@ -129,72 +141,86 @@ namespace SeldomDespArchipelago.Systems.Data
                     {
                         var itemInfo = locByID[key];
                         string[] myArray = archipelagoSystem.Presets["Default"];
-                        if (archipelagoSystem.specialColors)
-                        {
-                            // advOrTrap can be changed to not use Trap if needed, in case it gets too annoying. Hello devs, how ya doin'.
-                            bool advOrTrap = (itemInfo.Flags == ItemFlags.Advancement || itemInfo.Flags == ItemFlags.Trap);
-                            bool useful = itemInfo.Flags == ItemFlags.NeverExclude;
-                            string worldFrom = itemInfo.ItemGame.ToLower();
-                            string thisItemName = itemInfo.ItemName.ToLower();
-                            //if ((npcNameToID.Keys).Contains(itemInfo.ItemName))
-                            //{
-                            //    myArray = archipelagoSystem.Presets["NPC Name"];
-                            //    //int npcType = idToPreset[key];
-                            //    //itemsByNPC[npcType] = npcNameToID[itemInfo.ItemName];
-                            //}
-                            //else 
-                            int indexx = itemExactToPreset.Keys.IndexOf(thisItemName);
-                            string[] outputt = itemExactToPreset[itemExactToPreset.Keys[indexx]];
-                            if ((advOrTrap || outputt[1] == "true") && itemExactToPreset.Keys.Contains(thisItemName))
-                            {
-                                myArray = archipelagoSystem.Presets[outputt[0]];
-                            }
-                            else
-                            {
-                                bool shouldContinue = true;
-                                for (int a=0;a<itemContainsToPreset.Keys.Length;a++)
-                                {
-                                    string outputt = itemContainsToPreset[itemContainsToPreset.Keys[a]];
-                                    if ((advOrTrap || outputt[1] == "true") && thisItemName.Contains(itemContainsToPreset.Keys[a]))
-                                    {
-                                        myArray = archipelagoSystem.Presets[outputt[0]];
-                                        shouldContinue = false;
-                                        break;
-                                    }
-                                }
-                                if (shouldContinue)
-                                {
-                                    if (advOrTrap)
-                                    {
-                                        if (itemInfo.Player.Slot == Slot)
-                                        {
-                                            myArray = archipelagoSystem.Presets["Local Progression"];
-                                        }
-                                        else
-                                        {
-                                            for (int a=0;a<worldContainsToPreset.Keys.Length;a++)
-                                            {
-                                                if (worldFrom.Contains(worldContainsToPreset.Keys[a]))
-                                                {
-                                                    myArray = archipelagoSystem.Presets[worldContainsToPreset[worldContainsToPreset.Keys[a]]];
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-
-                                    }
-                                }
-                            }
-                        }
                         string awesomeName = session.Locations.GetLocationNameFromId(key, SessionState.APWorldName);
                         //awesomeName = awesomeName.Replace("Researchsanity - ","");
                         //if (awesomeName.Contains("["))
                         //{
                         //    awesomeName = awesomeName.Remove(awesomeName.IndexOf("[")-1);
                         //}
+                        for (int literallyOne=0;literallyOne<1;literallyOne++)
+                        {
+                            if (archipelagoSystem.specialColors)
+                            {
+                                // advOrTrap can be changed to not use Trap if needed, in case it gets too annoying. Hello devs, how ya doin'.
+                                bool advOrTrap = (itemInfo.Flags == ItemFlags.Advancement || itemInfo.Flags == ItemFlags.Trap);
+                                bool useful = itemInfo.Flags == ItemFlags.NeverExclude;
+                                string worldFrom = itemInfo.ItemGame.ToLower();
+                                string thisItemName = itemInfo.ItemName.ToLower();
+                                if (false) // Set to false when not testing, as this basically spoils all the Researchsanity locations if kept on.
+                                {
+                                    ModContent.GetInstance<SeldomArchipelago>().Logger.Info($"Info for check \"{awesomeName}\": Behind it is \"{thisItemName}\" from world \"{worldFrom}\". Is it Useful? {useful} Is it Progression or Trap? {advOrTrap}");
+                                }
+                                //if ((npcNameToID.Keys).Contains(itemInfo.ItemName))
+                                //{
+                                //    myArray = archipelagoSystem.Presets["NPC Name"];
+                                //    //int npcType = idToPreset[key];
+                                //    //itemsByNPC[npcType] = npcNameToID[itemInfo.ItemName];
+                                //}
+                                //else 
+                                bool shouldMoveOn = false;
+                                if (advOrTrap && itemInfo.Player.Slot == Slot)
+                                {
+                                    myArray = archipelagoSystem.Presets["Local Progression"];
+                                    continue;
+                                }
+
+                                if (itemExactToPreset.Keys.Contains(thisItemName))
+                                {
+                                    string[] outputt = itemExactToPreset[thisItemName];
+                                    if (advOrTrap || outputt[1] == "false")
+                                    {
+                                        myArray = archipelagoSystem.Presets[outputt[0]];
+                                        continue;
+                                    }
+                                }
+
+                                foreach (var a in itemContainsToPreset)
+                                {
+                                    string kee = a.Key;
+                                    string[] outputt = a.Value;
+                                    if ((advOrTrap || outputt[1] == "false") && thisItemName.Contains(kee))
+                                    {
+                                        myArray = archipelagoSystem.Presets[outputt[0]];
+                                        shouldMoveOn = true;
+                                        break;
+                                    }
+                                }
+                                if (shouldMoveOn) { continue; }
+
+                                if (worldExactToPreset.Keys.Contains(worldFrom))
+                                {
+                                    string[] outputt = worldExactToPreset[thisItemName];
+                                    if (advOrTrap || outputt[1] == "false")
+                                    {
+                                        myArray = archipelagoSystem.Presets[outputt[0]];
+                                        continue;
+                                    }
+                                }
+
+                                foreach (var a in worldContainsToPreset)
+                                {
+                                    string kee = a.Key;
+                                    string[] outputt = a.Value;
+                                    if ((advOrTrap || outputt[1] == "false") && worldFrom.Contains(kee))
+                                    {
+                                        myArray = archipelagoSystem.Presets[outputt[0]];
+                                        shouldMoveOn = true;
+                                        break;
+                                    }
+                                }
+                                if (shouldMoveOn) { continue; }
+                            }
+                        }
                         archipelagoSystem.idToColors[awesomeName] = myArray;
                     }
 

@@ -1049,14 +1049,14 @@ namespace SeldomDespArchipelago.Systems
         }
 
         public int gameTimer = 0;
-        public Dictionary<string,string[]> idToColors = new Dictionary<string,int[]>();
+        public Dictionary<string,string[]> idToColors = new Dictionary<string,string[]>();
         //{
         //    {"Fledgling Wings", [1,0,0,0,0,0]},
         //    {"Daybloom Seeds", [1,0,3,0,3,0]},
         //    {"Wooden Sword", [1,2,3,0,3,2]}
         //};
         // To note, these go clockwise, starting at the top.
-        public Dictionary<string,string[]> Presets = {
+        public Dictionary<string,string[]> Presets = new Dictionary<string,string[]>() {
             {"Default",             ["Red","Lime","Purple","Orange","Blue","Yellow"]},
             //{"Grayed",              ["Gray","Gray","Gray","Gray","Gray","Gray"]},
             //{"NPC Name",            ["Blue","Purple","Blue","Orange","Blue","Gray"]},
@@ -1066,7 +1066,9 @@ namespace SeldomDespArchipelago.Systems
             {"Sword",               ["Trans","White","White","Brown","Blank","Trans"]},
             {"Grub",                ["Lime","Lime","Lime","Lime","White","Brown"]},
             {"Strawberry",          ["Lime","Red","Red","Red","Red","Red"]},
-            {"Reward",              ["Purple","Blue","Purple","Blue","Purple","Blue"]}
+            {"Reward",              ["Purple","Blue","Purple","Blue","Purple","Blue"]},
+            {"Windows",             ["Blank","Lime","Yellow","Blank","Blue","Red"]},
+            {"Raspberry",           ["DarkRed","Red","DarkRed","Red","DarkRed","Red"]}
         };
         public int researchLockedBehindItems = -1;
         // config options (so that each item isn't referencing the config every frame)

@@ -78,8 +78,8 @@ namespace SeldomDespArchipelago
             return mod;
         }
 
-        public static Dict<string,Asset<Texture2D>> overlayTextures = new Dict<string,Asset<Texture2D>>();
-        public static constant string[] listTextures = ["Red","Lime","Purple","Orange","Blue","Yellow","Gray","Trans","Brown","White","Sky"]
+        public static Dictionary<string,Asset<Texture2D>> overlayTextures = new Dictionary<string,Asset<Texture2D>>();
+        public static string[] listTextures = ["Red","Lime","Purple","Orange","Blue","Yellow","Gray","Trans","Brown","White","Sky","DarkRed"];
         public override void Load()
         {
             var archipelagoSystem = ModContent.GetInstance<ArchipelagoSystem>();

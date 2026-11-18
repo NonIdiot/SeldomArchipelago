@@ -53,17 +53,23 @@ namespace SeldomDespArchipelago.ItemOverlay
                     {
                         if (whichTextureToUse[a] != "Blank" && SeldomArchipelago.overlayTextures.Keys.Contains(whichTextureToUse[a]))
                         {
-                            Texture2D usedTexture = SeldomArchipelago.overlayTextures[SeldomArchipelago.overlayTextures.IndexOf(whichTextureToUse[a])].Value;
+                            float realAlpha = alpha+0f;
+                            if (whichTextureToUse[a] == "Trans")
+                            {
+                                realAlpha /= 2f;
+                            }
+                            Texture2D usedTexture = SeldomArchipelago.overlayTextures[whichTextureToUse[a]].Value;
                             spriteBatch.Draw
                             (
                                 usedTexture,
                                 new Vector2
                                 (
-                                    position.X - usedTexture.Width * usedOffset + outwardsCount*(float)Math.Sin(myAngle+(float)(60f*a*(Math.PI/180f))),//.25
-                                    position.Y - usedTexture.Height * usedOffset + outwardsCount*(float)Math.Cos(myAngle+(float)(60f*a*(Math.PI/180f)))//.25 + item.height 
+                                    position.X - usedTexture.Width * usedOffset + outwardsCount*(float)Math.Cos(myAngle+(float)((60f*a-90f)*(Math.PI/180f))),//.25
+                                    position.Y - usedTexture.Height * usedOffset + outwardsCount*(float)Math.Sin(myAngle+(float)((60f*a-90f)*(Math.PI/180f)))//.25 + item.height 
                                 ),
                                 new Rectangle(0, 0, usedTexture.Width, usedTexture.Height),
-                                new Color(alpha,alpha,alpha,alpha), // all four are set, since if only the alpha is set, it gets REALLY bright.
+                                //new Color(alpha,alpha,alpha,alpha), 
+                                new Color(realAlpha,realAlpha,realAlpha,realAlpha),// all four are set, since if only the alpha is set, it gets REALLY bright.
                                 0,
                                 usedTexture.Size() * 0.5f,
                                 1f,//scale
